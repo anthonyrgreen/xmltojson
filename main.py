@@ -1,5 +1,6 @@
 import lxml.etree as ET
 import json as JS
+import uuid
 
 class treeParser:
   def __init__(self, filename, parserFunction):
@@ -72,11 +73,15 @@ def toJson(element):
     result[prop[0]] = prop[4](singleAttrFromPath(prop[1], prop[2],
                               attrName=prop[3], modFunc=prop[5]))
   for prop in multipleProperties:
-    result[prop[0]] = prop[4](allAttrsFromPath(prop[1], prop[2],
+    result[prop[0]] = map(prop[4], allAttrsFromPath(prop[1], prop[2],
                               attrName=prop[3], modFunc=prop[5], predicateFunc=prop[6]))
   result["rcvaccession_full"] = result["rcvaccession"] + "." + str(result["rcvaccession_version"])
-  result["uuid"] = 5
+  result["uuid"] = uuid.uuid4().hex
 
-  return JS.dumps(result)
+  return JS.JSONEncoder().encode(result)
 
 tree = treeParser("ClinVarFullRelease_2014-08.xml", toJson)
+f = open("jsonOutput", "w")
+for elem in tree:
+  f.write(elem + "\n")
+f.close()
