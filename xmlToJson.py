@@ -3,8 +3,9 @@ import json as JS
 import uuid
 
 class treeParser:
-  def __init__(self, filename, parserFunction):
+  def __init__(self, filename, tagname, parserFunction):
     xmlFile = open(filename, "rb")
+    self.tagname = tagname
     self.parserFunction = parserFunction
     tree = ET.iterparse(filename, events=("start", "end"))
     self.tree = iter(tree)
@@ -13,7 +14,7 @@ class treeParser:
     return self.iterator()
   def iterator(self):
     for event, elem in self.tree:
-      if event == "end" and elem.tag == "ClinVarSet":
+      if event == "end" and elem.tag == self.tagname:
         yield self.parserFunction(elem)
         self.root.clear()
 
